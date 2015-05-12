@@ -1,2 +1,14 @@
+module Main where
+
+import Trie (mkTrie)
+
 main :: IO ()
-main = putStrLn "Hello, World!"
+main = print $ mkTrie wordList
+
+wordList :: [String]
+wordList =
+  [ "tie"
+  , "tieto"
+  , "maku"
+  , "makkara"
+  ]
