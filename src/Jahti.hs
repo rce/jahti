@@ -1,4 +1,4 @@
-module Jahti (Table, generateWords) where
+module Jahti (Table, Path, Point, generateWords) where
 
 import Trie (Trie, contains)
 import qualified Data.Set as Set
@@ -7,10 +7,10 @@ type Point = (Int, Int)
 type Path = [Point]
 type Table = [[Char]]
 
-generateWords :: Table -> [String]
+generateWords :: Table -> [(Path, String)]
 generateWords table = words
   where
-    words = map (pathToWord table) validPaths
+    words = zip validPaths $ map (pathToWord table) validPaths
     validPaths = filter noDuplicates paths
     paths = concat $ map (getPaths table 10) startingPoints
 
