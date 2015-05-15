@@ -1,14 +1,23 @@
 module Main where
 
-import Trie (mkTrie)
+import Trie (mkTrie, contains)
+import Jahti (Table, generateWords)
 
-main :: IO ()
-main = print $ mkTrie wordList
+table :: Table
+table =
+  [ "ielh"
+  , "jvti"
+  , "aäun"
+  , "hkio"
+  ]
 
 wordList :: [String]
 wordList =
-  [ "tie"
-  , "tieto"
-  , "maku"
-  , "makkara"
-  ]
+  [ "evakuointi" , "tunika" , "lintu" , "leija" , "uinti" , "tuoni" , "lino"
+  , "kuve" , "kuva" , "kuin" , "nuti" , "veli"]
+
+main :: IO ()
+main = mapM_ putStrLn words
+  where
+    words = generateWords table wordTrie
+    wordTrie = mkTrie wordList
