@@ -1,6 +1,6 @@
 module Main where
 
-import Trie (mkTrie, contains)
+import Trie (Trie, mkTrie, contains)
 import Jahti (Table, generateWords)
 
 table :: Table
@@ -11,13 +11,12 @@ table =
   , "hkio"
   ]
 
-wordList :: [String]
-wordList =
-  [ "evakuointi" , "tunika" , "lintu" , "leija" , "uinti" , "tuoni" , "lino"
-  , "kuve" , "kuva" , "kuin" , "nuti" , "veli"]
-
 main :: IO ()
-main = mapM_ putStrLn words
-  where
-    words = generateWords table wordTrie
-    wordTrie = mkTrie wordList
+main = do
+  content <- readFile "words.txt"
+  let trie = mkTrie (lines content)
+  mapM_ putStrLn $ findRealWords table trie
+
+findRealWords :: Table -> Trie -> [String]
+findRealWords table wordTrie = filter isValid $ generateWords table
+  where isValid = \word -> contains word wordTrie

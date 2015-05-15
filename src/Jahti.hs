@@ -7,12 +7,10 @@ type Point = (Int, Int)
 type Path = [Point]
 type Table = [[Char]]
 
-generateWords :: Table -> Trie -> [String]
-generateWords table wordTrie = words
+generateWords :: Table -> [String]
+generateWords table = words
   where
-    words = filter isValid possibleWords
-    isValid = \word -> contains word wordTrie
-    possibleWords = map (pathToWord table) validPaths
+    words = map (pathToWord table) validPaths
     validPaths = filter noDuplicates paths
     paths = concat $ map (getPaths table 10) startingPoints
 
