@@ -1,11 +1,33 @@
-module Trie where
+module Trie (Trie, mkTrie, contains) where
 
-import Data.List (sort, groupBy)
+import Data.List (find, sort, groupBy)
 
 data Trie = Root [Trie]
           | Node Char [Trie]
           | End
           deriving Show
+
+contains :: String -> Trie -> Bool
+contains word (Root nodes) = contains' word nodes
+contains [] (Node _ nodes) = any isEnd nodes
+contains word (Node _ nodes) = contains' word nodes
+
+contains' :: String -> [Trie] -> Bool
+contains' (h:t) nodes = case findSubtrie h nodes of
+  Just(node) -> contains t node
+  Nothing -> False
+
+findSubtrie :: Char -> [Trie] -> Maybe Trie
+findSubtrie c = (find match) . (filter isNode)
+  where match = \(Node val _) -> val == c
+
+isNode :: Trie -> Bool
+isNode (Node _ _) = True
+isNode _ = False
+
+isEnd :: Trie -> Bool
+isEnd End = True
+isEnd _ = False
 
 mkTrie :: [String] -> Trie
 mkTrie = Root . (map mkNode) . groupWords
