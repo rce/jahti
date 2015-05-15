@@ -8,15 +8,12 @@ makeCmds :: [Coordinate] -> [String]
 makeCmds coords = init ++ moves ++ end
   where
     init = [ adb ++ "3 57 21860" ]
-    moves = concat $ zipWith moveCmd coords (tail coords)
+    moves = concat $ map moveCmd coords
     end = [ adb ++ "3 57 -1", adb ++ "0 0 0" ]
 
-moveCmd :: Coordinate -> Coordinate -> [String]
-moveCmd (x1, y1) (x2, y2) =
-  [ adb ++ "3 53 " ++ (show x1)
-  , adb ++ "3 54 " ++ (show y1)
-  , adb ++ "0 0 0"
-  , adb ++ "3 53 " ++ (show x2)
-  , adb ++ "3 54 " ++ (show y2)
+moveCmd :: Coordinate -> [String]
+moveCmd (x, y) =
+  [ adb ++ "3 53 " ++ (show x)
+  , adb ++ "3 54 " ++ (show y)
   , adb ++ "0 0 0"
   ]
