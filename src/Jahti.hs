@@ -1,48 +1,39 @@
-module Jahti (Table, Path, Point, generateWords) where
+module Jahti (Table, Path, findPaths, pathToWord) where
 
-import Trie (Trie, contains)
-import qualified Data.Set as Set
+import Data.List (concat, (\\))
 
-type Point = (Int, Int)
-type Path = [Point]
 type Table = [[Char]]
+type Path = [Point]
+type Point = (Int, Int)
 
-generateWords :: Table -> [(Path, String)]
-generateWords table = words
+-- Checks if given table contains a string
+findPaths :: Table -> String -> [Path]
+findPaths table (c:t) = concat $ map (findPaths' table t) starts
   where
-    words = zip validPaths $ map (pathToWord table) validPaths
-    validPaths = filter noDuplicates paths
-    paths = concat $ map (getPaths table 10) startingPoints
+    starts = map (:[]) $ filter (\p -> (charAt table p) == c) startingPoints
+    startingPoints = [ (x, y) | x <- [0..3], y <- [0..3] ]
+
+findPaths' :: Table -> String -> [Point] -> [Path]
+findPaths' _ [] path = [path]
+findPaths' table (c:t) path = concat $ map (findPaths' table t) nextPaths
+  where
+    nextPaths = map (\p -> path ++ [p]) goodNeighbors
+    goodNeighbors = filter ((c==) . (charAt table)) notVisited
+    notVisited = (neighbors (last path)) \\ path
+
 
 pathToWord :: Table -> Path -> String
 pathToWord table = map (charAt table)
 
--- How does this even work?
-noDuplicates :: Path -> Bool
-noDuplicates = f Set.empty where
-  f _ [] = True
-  f xs (h : t) = if Set.member h xs
-    then False
-    else f (Set.insert h xs) t
-
-getPaths :: Table -> Int -> Point -> [Path]
-getPaths table 1 point = [[point]]
-getPaths table n point = [[point]] ++ map (point:) tails
-  where
-    c = charAt table point
-    tails = concat $ map getTails next
-    getTails = getPaths table (n-1)
-    next = neighbors point
-
 neighbors :: Point -> [Point]
-neighbors (x, y) = filter (valid 4 4) all
+neighbors (x, y) = filter valid all
   where all = [ (x-1, y-1), (x, y-1), (x+1, y-1)
-              , (x-1, y),             (x+1, y)
+              , (x-1, y  ),           (x+1, y  )
               , (x-1, y+1), (x, y+1), (x+1, y+1)
               ]
 
-valid :: Int -> Int -> Point -> Bool
-valid w h (x, y)
+valid :: Point -> Bool
+valid (x, y)
   | x < 0 = False
   | y < 0 = False
   | x > 3 = False
@@ -51,6 +42,3 @@ valid w h (x, y)
 
 charAt :: Table -> Point -> Char
 charAt table (x, y) = table !! y !! x
-
-startingPoints :: [Point]
-startingPoints = [ (x, y) | x <- [0..3], y <- [0..3] ]
