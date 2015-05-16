@@ -19,10 +19,10 @@ main = do
   putStrLn "Done!"
 
 getPaths :: Table -> [String] -> [Path]
-getPaths table = dedup . singles . (map (findPaths table))
-  where
-    singles = (map head) . (filter (not . null))
-    dedup = removeDuplicates table
+getPaths table = (removeDuplicates table) . firstElements . (map (findPaths table))
+
+firstElements :: [[a]] -> [a]
+firstElements = (map head) . (filter (not . null))
 
 parseTable :: String -> Table
 parseTable [] = []
@@ -35,9 +35,8 @@ removeDuplicates table = nubBy (sameWords table)
     toWord = pathToWord table
 
 inputPath :: Path -> IO ()
-inputPath path = do
-  mapM_ system $ makeCmds $ pathToCoords path
+inputPath = (mapM_ system) . makeCmds . pathToCoords
 
 pathToCoords :: Path -> [Coordinate]
-pathToCoords path = map toCoord path
+pathToCoords = map toCoord
   where toCoord (x, y) = (159 + x * 254, 753 + y * 287)

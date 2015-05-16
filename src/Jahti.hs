@@ -26,19 +26,11 @@ pathToWord :: Table -> Path -> String
 pathToWord table = map (charAt table)
 
 neighbors :: Point -> [Point]
-neighbors (x, y) = filter valid all
-  where all = [ (x-1, y-1), (x, y-1), (x+1, y-1)
-              , (x-1, y  ),           (x+1, y  )
-              , (x-1, y+1), (x, y+1), (x+1, y+1)
-              ]
-
-valid :: Point -> Bool
-valid (x, y)
-  | x < 0 = False
-  | y < 0 = False
-  | x > 3 = False
-  | y > 3 = False
-  | otherwise = True
+neighbors (x, y) = filter isValid all where
+    isValid (x, y) = (0 <= x) && (x <= 3) && (0 <= y) && (y <= 3)
+    all = [ (x-1, y-1), (x, y-1), (x+1, y-1)
+          , (x-1, y  ),           (x+1, y  )
+          , (x-1, y+1), (x, y+1), (x+1, y+1) ]
 
 charAt :: Table -> Point -> Char
 charAt table (x, y) = table !! y !! x
