@@ -3,7 +3,7 @@ module Main where
 import Codec.Picture (Image, DynamicImage (ImageRGBA8), pixelAt)
 import Codec.Picture.Types (PixelRGBA8 (PixelRGBA8))
 import Control.Concurrent (threadDelay)
-import Data.List (null, length, sortBy)
+import Data.List (null, length, sortBy, nubBy)
 import Data.Ord (comparing)
 import System.Cmd (system)
 import System.Directory (renameFile)
@@ -11,7 +11,7 @@ import System.Environment (getArgs)
 
 import Adb (makeCmds, Coordinate, screenshot)
 import Characters (pairs)
-import Jahti (Table, Path, findPaths)
+import Jahti (Table, Path, findPaths, pathToWord)
 
 main :: IO ()
 main = do
@@ -101,7 +101,11 @@ sortPaths :: [Path] -> [Path]
 sortPaths = reverse . (sortBy (comparing length))
 
 getPaths :: Table -> [String] -> [Path]
-getPaths table = firstElements . (map (findPaths table))
+getPaths table = (removeDuplicates table) . firstElements . (map (findPaths table))
+
+removeDuplicates :: Table -> [Path] -> [Path]
+removeDuplicates table = nubBy (sameWords table) where
+  sameWords table a b = (pathToWord table a) == (pathToWord table b)
 
 firstElements :: [[a]] -> [a]
 firstElements = (map head) . (filter (not . null))
