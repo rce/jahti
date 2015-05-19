@@ -1,22 +1,37 @@
-module Adb (Coordinate, makeCmds) where
+module Adb (Coordinate, makeCmds, screenshot) where
+
+import System.Cmd (system)
+import Codec.Picture (readPng)
+import Codec.Picture.Types (DynamicImage)
 
 adb :: String
-adb = "C:\\Users\\rce\\AppData\\Local\\Android\\sdk\\platform-tools\\adb.exe shell sendevent /dev/input/event1 "
+adb = "C:\\Users\\rce\\AppData\\Local\\Android\\sdk\\platform-tools\\adb.exe"
+
+sendevent :: String
+sendevent = adb ++ " shell sendevent /dev/input/event1"
 
 type Coordinate = (Int, Int)
+
+screenshot :: String -> IO (Either String DynamicImage)
+screenshot filename = do
+  mapM_ system cmds
+  readPng filename where
+      cmds =
+        [ adb ++ " shell screencap -p /sdcard/" ++ filename
+        , adb ++ " pull /sdcard/" ++ filename ++ " " ++ filename
+        , adb ++ " shell rm /sdcard/" ++ filename ]
 
 makeCmds :: [Coordinate] -> [String]
 makeCmds coords = init ++ moves ++ end
   where
-    init = [ adb ++ "3 57 21860" ]
+    init = [ sendevent ++ " 3 57 21860" ]
     moves = concat $ map moveCmd coords
-    end = [ adb ++ "3 57 -1"
-          , adb ++ "0 0 0"
-          , "sleep 0.2" ]
+    end = [ sendevent ++ " 3 57 -1"
+          , sendevent ++ " 0 0 0" ]
 
 moveCmd :: Coordinate -> [String]
 moveCmd (x, y) =
-  [ adb ++ "3 53 " ++ (show x)
-  , adb ++ "3 54 " ++ (show y)
-  , adb ++ "0 0 0"
+  [ sendevent ++ " 3 53 " ++ (show x)
+  , sendevent ++ " 3 54 " ++ (show y)
+  , sendevent ++ " 0 0 0"
   ]
